@@ -3,35 +3,42 @@ package ar.edu.itba.ss;
 import java.util.Comparator;
 
 public class Event implements Comparator<Event>{
-	private double time;
-	private Particle p1;
-	private Particle p2;
-	
-	/**
+	private final double time;
+	private final Particle p1;
+	private final Particle p2;
+
+	private double eventTimeP1;
+    private double eventTimeP2;
+
+
+    /**
 	 * If (a != null && b != null) Collision between particles
 	 * If (a != null) Collision X wall
 	 * If (b != null) Collision Y wall
 	 * Else Redraw the map (Update Particles)
-	 * @param a
-	 * @param b
+	 * @param p1 particle 1
+	 * @param p2 particle 2
 	 */
-	public Event(double time, Particle p1,Particle p2){
+	public Event(double time, Particle p1, Particle p2){
 		this.time = time;
 		this.p1 = p1;
-		this.p1 = p2;
-	}
-
-	public void setTime(double time) {
-		this.time = time;
-	}
-
-	public void setP1(Particle p1) {
-		this.p1 = p1;
-	}
-
-	public void setP2(Particle p2) {
 		this.p2 = p2;
+
+        if (this.p1 != null)
+            this.eventTimeP1 = p1.getEventTime();
+
+        if (this.p2 != null)
+            this.eventTimeP2 = p2.getEventTime();
 	}
+
+    public double getEventTimeP1() {
+        return eventTimeP1;
+    }
+
+    public double getEventTimeP2() {
+        return eventTimeP2;
+    }
+
 
 	public double getTime() {
 		return time;

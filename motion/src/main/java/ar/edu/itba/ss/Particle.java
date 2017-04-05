@@ -21,7 +21,9 @@ public class Particle {
 	private Double x_speed = 0.0;
 	private Double y_speed = 0.0;
 
-	public Particle(final Integer id){
+    private Double eventTime = 0.0;
+
+    public Particle(final Integer id){
 		this.id = id;
 	}
 
@@ -161,6 +163,14 @@ public class Particle {
 	public double getYSpeed(){
 		return y_speed;
 	}
+
+    public Double getEventTime() {
+        return eventTime;
+    }
+
+    public void setEventTime(Double eventTime) {
+        this.eventTime = eventTime;
+    }
 
 	@Override
 	public boolean equals(Object o) {
