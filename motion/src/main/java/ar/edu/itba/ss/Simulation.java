@@ -1,7 +1,6 @@
 package ar.edu.itba.ss;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.PriorityQueue;
 
@@ -17,17 +16,19 @@ public class Simulation {
 	private static final double Rb = 0.05;
 	private static final int mb = 100;
 
+	private final static double timePrint = 0.1;
+
 	private static List<Particle> list;
-	private static PriorityQueue<Event> pq;
+	private static PriorityQueue<Event> events;
 	
 	private static List<Particle> borders = generateBorders();
 
 	public static void main( String[] args ){
 		boolean finished = false;
-		pq = new PriorityQueue<>();
-		list = Particle.generateParticles(N,R,m,Rb,mb,L);
+		events = new PriorityQueue<>();
+		list = Particle.generateParticles(N, R, m, Rb, mb, L);
 
-		//ONLY FOR DEBUGGING, TE MUESTRA LAS PARTICULAS CREADAS
+		//debug
 		Particle.CreateFile(list);
 
 		//Calculates initial interactions with particles
@@ -36,7 +37,7 @@ public class Simulation {
 		}
 		
 		for(int i = 0; i< it || !finished; i++){
-			Event e = pq.poll();
+			Event e = events.poll();
 			if(e == null){
 				finished = true;
 			}
@@ -67,18 +68,18 @@ public class Simulation {
 
 		//Checks collisions with wall in X
 		tc = p.collideX();
-		pq.add(new Event(tc, p, null));
+		events.add(new Event(tc, p, null));
 
 		//Checks collisions with wall in Y
 		tc = p.collideY();
-		pq.add(new Event(tc,null,p));
+		events.add(new Event(tc,null,p));
 
 		//Checks collisions with other particles
 		for(int j=0;j<list.size();j++){
 			Particle aux = list.get(j);
 			if(!aux.equals(p)){
 				tc = p.collide(aux);
-				pq.add(new Event(tc,p,aux));
+				events.add(new Event(tc,p,aux));
 			}
 		}
 	}
