@@ -52,65 +52,68 @@ public class Particle {
 		this.radius = radius;
 	}
 
-	public static List<Particle> generateParticles(int N, double r, double m, double rb, int mb, double L) {
+    /**
+     * Generates N + 1 particles with a valid position in space of a given length side.
+     * Particle with id 0 is the one corresponding to bigRadius and bigMass, the rest
+     * are created with radius and mass.
+     *
+     * @param N Number of small particles
+     * @param radius Radious of the N small particles
+     * @param mass Mass of the N small particles
+     * @param bigRadius Radius of the big particle
+     * @param bigMass Mass of the big particle
+     * @param L Side length of the space
+     * @return List of the generated particles with valid position
+     */
+	public static List<Particle> generateParticles(int N, double radius, double mass, double bigRadius, int bigMass, double L) {
 		ArrayList<Particle> list = new ArrayList<>();
 		Random rand = new Random();
-		double randomX,randomY;
-		//BIG PARTICLE
-		do{
-			randomX = L * rand.nextDouble();
-			randomY = L * rand.nextDouble();
-		}while(!valid(randomX,randomY,list,L,rb));
-		double randomXS = rand.nextDouble() * 0.2 - 0.1;
-		double randomYS = rand.nextDouble() * 0.2 - 0.1;
-		list.add(new Particle(0,rb,mb,randomX,randomY,randomXS,randomYS));
+
+        //Create big particle with id 0
+		createParticle(0, bigRadius, bigMass, L, list);
 		
-		//ALL THE N SMALL PARTICLES
-		for(int i=1 ; i<=N ; i++){
-			do{
-				randomX = L * rand.nextDouble();
-				randomY = L * rand.nextDouble();
-			}while(!valid(randomX,randomY,list,L,r));
-			randomXS = rand.nextDouble() * 0.2 - 0.1;
-			randomYS = rand.nextDouble() * 0.2 - 0.1;
-			list.add(new Particle(i,r,m,randomX,randomY,randomXS,randomYS));
+		//Create small particles
+		for (int i = 1; i <= N; i++){
+			createParticle(i, radius, mass, L, list);
 		}
+
 		return list;
 	}
-	
-	public static void CreateFile(final List<Particle> list){
-		File file;
-		FileOutputStream fop = null;
-		file = new File("out.txt");
-		try {
-			fop = new FileOutputStream(file);
-			if(!file.exists()){
-				file.createNewFile();
-			}
-			int time = 0;
-			String init = "\t" + list.size() + "\n" +"\t" + time +"\n";
-			fop.write(init.getBytes());
-			for(Particle p: list){
-				String aux = "\t" + p.getId() + "\t" + p.getX_pos() + "\t" + p.getY_pos() + "\t" + p.getXSpeed() + "\t" + p.getYSpeed() + "\t" + p.getRadius() + "\n";
-				fop.write(aux.getBytes());
-				fop.flush();
-			}
-			fop.flush();
-			fop.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
 
+    /**
+     * Generates one single particle and makes sure it is correctly placed in the space.
+     * Speed is hardcoded for every component between 0.1 and -0.1
+     *
+     * @param radius Radius of the particle
+     * @param mass Mass of the particle
+     * @param L Side length of the space
+     * @param list List of the particles already placed in the space
+     */
+    private static void createParticle(int id, double radius, double mass, double L, ArrayList<Particle> list){
+        Random rand = new Random();
+        double randX, randY;
 
-	private static boolean valid(final double x,final  double y,final  ArrayList<Particle> list,final  double l,final  double r) {
-		if(x - r <= 0 || x + r >= l || y - r <= 0 || y + r >= l){
+        //Place it correctly in space
+        do {
+            randX = L * rand.nextDouble();
+            randY = L * rand.nextDouble();
+        } while(!valid(randX, randY, list, L, radius));
+
+        //Define speed vector
+        double randVx = rand.nextDouble() * 0.2 - 0.1;
+        double randVy = rand.nextDouble() * 0.2 - 0.1;
+
+        list.add(new Particle(id, radius, mass, randX, randY, randVx, randVy));
+    }
+
+	private static boolean valid(final double x, final double y, final ArrayList<Particle> list, final  double l, final  double r) {
+		if (x - r <= 0 || x + r >= l || y - r <= 0 || y + r >= l) {
 			return false;
 		}
-		for(Particle p:list){
-			double dist =Math.pow(x - p.getX_pos(), 2) + Math.pow(y - p.getY_pos(), 2);
+		for (Particle p:list){
+			double dist = Math.pow(x - p.getX(), 2) + Math.pow(y - p.getY(), 2);
 			double rad = Math.pow(r + p.getRadius(), 2);
-			if(Double.compare(dist, rad) <= 0){
+			if (Double.compare(dist, rad) <= 0){
 				return false;
 			}
 		}
@@ -175,18 +178,18 @@ public class Particle {
 		return id.hashCode();
 	}
 
-	public Double getY_pos() {
+	public Double getY() {
 		return y_pos;
 	}
-	public void setY_pos(double y_pos) {
+	public void setY(double y_pos) {
 		this.y_pos = y_pos;
 	}
 
-	public Double getX_pos() {
+	public Double getX() {
 		return x_pos;
 	}
 
-	public void setX_pos(double x_pos) {
+	public void setX(double x_pos) {
 		this.x_pos = x_pos;
 	}
 
@@ -214,6 +217,32 @@ public class Particle {
 	public Integer getId() {
 		return id;
 	}
+
+
+    //TODO: Remove
+    public static void CreateFile(final List<Particle> list){
+        File file;
+        FileOutputStream fop = null;
+        file = new File("out.txt");
+        try {
+            fop = new FileOutputStream(file);
+            if(!file.exists()){
+                file.createNewFile();
+            }
+            int time = 0;
+            String init = "\t" + list.size() + "\n" +"\t" + time +"\n";
+            fop.write(init.getBytes());
+            for(Particle p: list){
+                String aux = "\t" + p.getId() + "\t" + p.getX() + "\t" + p.getY() + "\t" + p.getXSpeed() + "\t" + p.getYSpeed() + "\t" + p.getRadius() + "\n";
+                fop.write(aux.getBytes());
+                fop.flush();
+            }
+            fop.flush();
+            fop.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
 }
 

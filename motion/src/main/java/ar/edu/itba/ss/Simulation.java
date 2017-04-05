@@ -6,17 +6,17 @@ import java.util.PriorityQueue;
 
 public class Simulation {
 	private static final int N = 150;
-	private static final int it = 1000;
+	private static final double runningTime = 60; //Seconds
 
 	private static final double L = 0.5;
 
-	private static final double R = 0.005;
-	private static final double m = 0.1;
+	private static final double radius = 0.005;
+	private static final double mass = 0.1;
 
-	private static final double Rb = 0.05;
-	private static final int mb = 100;
+	private static final double bigRadius = 0.05;
+	private static final int bigMass = 100;
 
-	private final static double timePrint = 0.1;
+	private final static double printInterval = 0.1;
 
 	private static List<Particle> list;
 	private static PriorityQueue<Event> events;
@@ -26,17 +26,17 @@ public class Simulation {
 	public static void main( String[] args ){
 		boolean finished = false;
 		events = new PriorityQueue<>();
-		list = Particle.generateParticles(N, R, m, Rb, mb, L);
+		list = Particle.generateParticles(N, radius, mass, bigRadius, bigMass, L);
 
 		//debug
 		Particle.CreateFile(list);
 
 		//Calculates initial interactions with particles
-		for(Particle p: list){
+		/*for(Particle p: list){
 			getInteractions(p);
-		}
+		}*/
 		
-		for(int i = 0; i< it || !finished; i++){
+		for(int i = 0; i< runningTime || !finished; i++){
 			Event e = events.poll();
 			if(e == null){
 				finished = true;
@@ -86,8 +86,8 @@ public class Simulation {
 
 	private static void evolveParticles(double time){
 		for(Particle p: list){
-			p.setX_pos(p.getX_pos() + p.getXSpeed()*time);
-			p.setY_pos(p.getY_pos() + p.getYSpeed()*time);
+			p.setX(p.getX() + p.getXSpeed()*time);
+			p.setY(p.getY() + p.getYSpeed()*time);
 		}
 	}
 	
