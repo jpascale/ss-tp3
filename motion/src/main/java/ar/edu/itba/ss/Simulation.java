@@ -24,7 +24,7 @@ public class Simulation {
 
 	private static List<Particle> borders = generateBorders();
 
-    
+
 	public static void main( String[] args ){
 
         System.out.print("Creating particles... ");
