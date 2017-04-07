@@ -2,13 +2,14 @@ package ar.edu.itba.ss;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.PriorityQueue;
 
 public class Simulation {
-	private static final int N = 150;
+	private static final int N = 2;
 	private static final double runningTime = 60; //Seconds
 
-	private static final double L = 0.5;
+	private static final double L = 0.6;
 
 	private static final double radius = 0.005;
 	private static final double mass = 0.1;
@@ -18,36 +19,60 @@ public class Simulation {
 
 	private final static double printInterval = 0.1;
 
-	private static List<Particle> list;
-	private static PriorityQueue<Event> events;
+	private static ArrayList<Particle> list;
+	private static PriorityQueue<Event> events = new PriorityQueue<>();
 	
 	private static List<Particle> borders = generateBorders();
 
 	public static void main( String[] args ){
-		boolean finished = false;
-		events = new PriorityQueue<>();
+
+        System.out.print("Creating particles... ");
 		list = Particle.generateParticles(N, radius, mass, bigRadius, bigMass, L);
+		System.out.println("Done!");
 
-		//debug
-		Particle.CreateFile(list);
+        for (int i = 0; i < list.size(); i++) {
+            for (int j = i + 1; j < list.size(); j++){
+                Optional<Double> opt = getCollisionTime(list.get(i), list.get(j));
 
-		//Calculates initial interactions with particles
-		/*for(Particle p: list){
-			getInteractions(p);
-		}*/
-		
-		for(int i = 0; i< runningTime || !finished; i++){
-			Event e = events.poll();
-			if(e == null){
-				finished = true;
-			}
-			evolveParticles(e.getTime());
-			getNewVelocities(e);
-			updateCollisions(e);
-		}
+                if (opt.isPresent()){
+                    System.out.println("Particles " + i + " and " + j + " will collide at t=" + opt.get());
+                } else {
+                    System.out.println("Particles " + i + " and " + j + " are never colliding.");
+                }
+            }
+        }
+
+        list.forEach(System.out::println);
+
 	}
-	
-	
+
+
+    public static Optional<Double> getCollisionTime(Particle p1, Particle p2) {
+        double totalRadius = p1.getRadius() + p2.getRadius();
+
+        double deltaX = p2.getX() - p1.getX();
+        double deltaY = p2.getY() - p1.getY();
+
+        double deltaVX = p2.getXSpeed() - p1.getXSpeed();
+        double deltaVY = p2.getYSpeed() - p1.getYSpeed();
+
+        double deltaRSquare = Math.pow(deltaX, 2) + Math.pow(deltaY, 2);
+        double deltaVSquare = Math.pow(deltaVX, 2) + Math.pow(deltaVY, 2);
+
+        double deltaVDeltaR = deltaVX * deltaX + deltaVY * deltaY;
+
+        double d = Math.pow(deltaVDeltaR, 2) - deltaVSquare * (deltaRSquare - Math.pow(totalRadius, 2));
+
+
+        if (deltaVDeltaR >= 0 || d < 0){
+            return Optional.empty();
+        }
+
+        return Optional.of(-1 * ((deltaVDeltaR + Math.sqrt(d)) / deltaVSquare));
+
+    }
+
+	///////////////////////////////////////////
 
 	private static void updateCollisions(Event e) {
 		// TODO Auto-generated method stub
@@ -60,6 +85,9 @@ public class Simulation {
 		// TODO Auto-generated method stub
 		
 	}
+
+
+
 
 
 

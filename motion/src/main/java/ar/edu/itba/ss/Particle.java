@@ -67,16 +67,16 @@ public class Particle {
      * @param L Side length of the space
      * @return List of the generated particles with valid position
      */
-	public static List<Particle> generateParticles(int N, double radius, double mass, double bigRadius, int bigMass, double L) {
+	public static ArrayList<Particle> generateParticles(int N, double radius, double mass, double bigRadius, int bigMass, double L) {
 		ArrayList<Particle> list = new ArrayList<>();
 		Random rand = new Random();
 
         //Create big particle with id 0
-		createParticle(0, bigRadius, bigMass, L, list);
+		createParticle(0, bigRadius, bigMass, 0, L, list);
 		
 		//Create small particles
 		for (int i = 1; i <= N; i++){
-			createParticle(i, radius, mass, L, list);
+			createParticle(i, radius, mass, 0.1, L, list);
 		}
 
 		return list;
@@ -91,7 +91,7 @@ public class Particle {
      * @param L Side length of the space
      * @param list List of the particles already placed in the space
      */
-    private static void createParticle(int id, double radius, double mass, double L, ArrayList<Particle> list){
+    private static void createParticle(int id, double radius, double mass, double speedRange, double L, ArrayList<Particle> list){
         Random rand = new Random();
         double randX, randY;
 
@@ -102,19 +102,19 @@ public class Particle {
         } while(!valid(randX, randY, list, L, radius));
 
         //Define speed vector
-        double randVx = rand.nextDouble() * 0.2 - 0.1;
-        double randVy = rand.nextDouble() * 0.2 - 0.1;
+        double randVx = rand.nextDouble() * (speedRange * 2) - speedRange;
+        double randVy = rand.nextDouble() * (speedRange * 2) - speedRange;
 
         list.add(new Particle(id, radius, mass, randX, randY, randVx, randVy));
     }
 
-	private static boolean valid(final double x, final double y, final ArrayList<Particle> list, final  double l, final  double r) {
+	private static boolean valid(final double x, final double y, final ArrayList<Particle> list, final double l, final double r) {
 		if (x - r <= 0 || x + r >= l || y - r <= 0 || y + r >= l) {
 			return false;
 		}
 		for (Particle p:list){
 			double dist = Math.pow(x - p.getX(), 2) + Math.pow(y - p.getY(), 2);
-			double rad = Math.pow(r + p.getRadius(), 2);
+			double rad = r + p.getRadius();
 			if (Double.compare(dist, rad) <= 0){
 				return false;
 			}
@@ -221,7 +221,7 @@ public class Particle {
 
 	@Override
 	public String toString() {
-		return "Particle " + this.id + " (" + this.x_pos + "," + this.y_pos + ")";
+		return "Particle " + this.id + " (" + this.x_pos + "," + this.y_pos + ")(" + this.x_speed + "," + this.y_speed + ")";
 	}
 
 	public Integer getId() {
