@@ -43,10 +43,20 @@ public class Simulation {
             }
         }
 
-        list.forEach(System.out::println);
+        list.forEach(p -> System.out.println(p.getId() + "Collides XWall t=" + getCollisionTime(p.getX(), p.getXSpeed(), p.getRadius())) );
+        list.forEach(p -> System.out.println(p.getId() + "Collides YWall t=" + getCollisionTime(p.getY(), p.getYSpeed(), p.getRadius())) );
 
+        list.forEach(System.out::println);
 	}
 
+
+    /**
+     * Computes the time in which two particles are going to collide.
+     *
+     * @param p1 The first particle.
+     * @param p2 The second particle.
+     * @return Optional containing or not the time.
+     */
 
     public static Optional<Double> getCollisionTime(Particle p1, Particle p2) {
         double totalRadius = p1.getRadius() + p2.getRadius();
@@ -71,6 +81,30 @@ public class Simulation {
 
         return Optional.of(-1 * ((deltaVDeltaR + Math.sqrt(d)) / deltaVSquare));
 
+    }
+
+    /**
+     * Computes the time in which a particle is going to collide with the wall of the
+     * component that is being tested.
+     *
+     * @param x The position in that component
+     * @param Vx The velocity in that component
+     * @return Optional containing or not the time.
+     */
+    public static Optional<Double> getCollisionTime(Double x, Double Vx, Double Radius){
+        if (Vx.equals(0d)){
+            return Optional.empty();
+        }
+
+        Double time;
+
+        if (Vx > 0){
+            time = (L - Radius - x) / Vx;
+        } else {
+            time = (Radius - x) / Vx;
+        }
+
+        return Optional.of(time);
     }
 
 
