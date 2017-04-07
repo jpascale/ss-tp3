@@ -21,9 +21,10 @@ public class Simulation {
 
 	private static ArrayList<Particle> list;
 	private static PriorityQueue<Event> events = new PriorityQueue<>();
-	
+
 	private static List<Particle> borders = generateBorders();
 
+    
 	public static void main( String[] args ){
 
         System.out.print("Creating particles... ");
@@ -72,40 +73,36 @@ public class Simulation {
 
     }
 
-	///////////////////////////////////////////
 
 	private static void updateCollisions(Event e) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 
 
 	private static void getNewVelocities(Event e) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 
 
-
-
-
-	private static void getInteractions(Particle p) {
+	private static void getInteractions() {
 		double tc;
+		for(int i =0;i<list.size();i++){
+			Particle p = list.get(i);
+			//Checks collisions with wall in X
+			tc = p.collideX();
+			events.add(new Event(tc, p, null));
 
-		//Checks collisions with wall in X
-		tc = p.collideX();
-		events.add(new Event(tc, p, null));
+			//Checks collisions with wall in Y
+			tc = p.collideY();
+			events.add(new Event(tc,null,p));
 
-		//Checks collisions with wall in Y
-		tc = p.collideY();
-		events.add(new Event(tc,null,p));
-
-		//Checks collisions with other particles
-		for(int j=0;j<list.size();j++){
-			Particle aux = list.get(j);
-			if(!aux.equals(p)){
+			//Checks collisions with other particles
+			for(int j=i+1;j<list.size();j++){
+				Particle aux = list.get(j);
 				tc = p.collide(aux);
 				events.add(new Event(tc,p,aux));
 			}
@@ -118,7 +115,7 @@ public class Simulation {
 			p.setY(p.getY() + p.getYSpeed()*time);
 		}
 	}
-	
+
 	private static List<Particle> generateBorders() {
 		List<Particle> list = new ArrayList<>();
 		list.add(new Particle(0,0,0.01));
