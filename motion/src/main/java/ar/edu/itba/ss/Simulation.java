@@ -9,7 +9,7 @@ public class Simulation {
 	private static final int N = 2;
 	private static final double runningTime = 60; //Seconds
 
-	private static final double L = 0.6;
+	private static final double L = 0.5;
 
 	private static final double radius = 0.005;
 	private static final double mass = 0.1;
@@ -20,7 +20,7 @@ public class Simulation {
 	private final static double printInterval = 0.1;
 
 	private static ArrayList<Particle> list;
-	private static PriorityQueue<Event> events = new PriorityQueue<>();
+	private static PriorityQueue<Event> events = new PriorityQueue<>(new EventComparator());
 
 	private static List<Particle> borders = generateBorders();
 
@@ -31,24 +31,41 @@ public class Simulation {
 		list = Particle.generateParticles(N, radius, mass, bigRadius, bigMass, L);
 		System.out.println("Done!");
 
+        initialEventFill();
+
+        events.forEach(System.out::println);
+
+        Particle.CreateFile(list);
+	}
+
+    private static void initialEventFill(){
+
         for (int i = 0; i < list.size(); i++) {
+            Particle p = list.get(i);
+
+            //Check collision with other particles
             for (int j = i + 1; j < list.size(); j++){
-                Optional<Double> opt = getCollisionTime(list.get(i), list.get(j));
+                Optional<Double> opt = getCollisionTime(p, list.get(j));
 
                 if (opt.isPresent()){
-                    System.out.println("Particles " + i + " and " + j + " will collide at t=" + opt.get());
-                } else {
-                    System.out.println("Particles " + i + " and " + j + " are never colliding.");
+                    events.add(new Event(opt.get(), p, list.get(j)));
                 }
+            }
+
+            //Check collision with wall in X component
+            Optional<Double> opt = getCollisionTime(p.getX(), p.getXSpeed(), p.getRadius());
+            if (opt.isPresent()) {
+                events.add(new Event(opt.get(), null, p));
+            }
+
+            //Check collision with wall in Y component
+            opt = getCollisionTime(p.getY(), p.getYSpeed(), p.getRadius());
+            if (opt.isPresent()) {
+                events.add(new Event(opt.get(), p, null));
             }
         }
 
-        list.forEach(p -> System.out.println(p.getId() + "Collides XWall t=" + getCollisionTime(p.getX(), p.getXSpeed(), p.getRadius())) );
-        list.forEach(p -> System.out.println(p.getId() + "Collides YWall t=" + getCollisionTime(p.getY(), p.getYSpeed(), p.getRadius())) );
-
-        list.forEach(System.out::println);
-	}
-
+    }
 
     /**
      * Computes the time in which two particles are going to collide.
@@ -58,7 +75,7 @@ public class Simulation {
      * @return Optional containing or not the time.
      */
 
-    public static Optional<Double> getCollisionTime(Particle p1, Particle p2) {
+    private static Optional<Double> getCollisionTime(Particle p1, Particle p2) {
         double totalRadius = p1.getRadius() + p2.getRadius();
 
         double deltaX = p2.getX() - p1.getX();
@@ -107,6 +124,9 @@ public class Simulation {
         return Optional.of(time);
     }
 
+
+
+    /////////////////////////////////////////////////
 
 	private static void updateCollisions(Event e) {
 		// TODO Auto-generated method stub

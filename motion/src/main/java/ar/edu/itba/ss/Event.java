@@ -1,14 +1,20 @@
 package ar.edu.itba.ss;
 
-import java.util.Comparator;
+/**
+ * Create a new event representing a collision between
+ * particles p1 and p1 at time t. If neither p1 nor p2 is null, then it represents a pairwise collision between p1 and p2; if both p1
+ * and p2 are null, it represents a redraw event; if only p2 is null, it represents a collision between p1 and a vertical wall; if
+ * only p1 is null, it represents a collision between p2 and a horizontal wall.
+ */
 
-public class Event implements Comparator<Event>{
-	private final double time;
+public class Event {
+
+	private final Double time;
 	private final Particle p1;
 	private final Particle p2;
 
-	private double eventTimeP1;
-    private double eventTimeP2;
+	private Integer eventCountP1 = 0;
+    private Integer eventCountP2 = 0;
 
 
     /**
@@ -25,22 +31,26 @@ public class Event implements Comparator<Event>{
 		this.p2 = p2;
 
         if (this.p1 != null)
-            this.eventTimeP1 = p1.getEventTime();
+            this.eventCountP1 = p1.getEventCount();
 
         if (this.p2 != null)
-            this.eventTimeP2 = p2.getEventTime();
+            this.eventCountP2 = p2.getEventCount();
 	}
 
+    public boolean isInvalid(){
+        return !((p1 != null && !p1.getEventCount().equals(eventCountP1)) || (p2 !=null && !p2.getEventCount().equals(eventCountP2)));
+    }
+
     public double getEventTimeP1() {
-        return eventTimeP1;
+        return eventCountP1;
     }
 
     public double getEventTimeP2() {
-        return eventTimeP2;
+        return eventCountP2;
     }
 
 
-	public double getTime() {
+	public Double getTime() {
 		return time;
 	}
 
@@ -83,10 +93,18 @@ public class Event implements Comparator<Event>{
 		return true;
 	}
 
-	@Override
-	public int compare(Event o1, Event o2) {
-		return (int)(o1.getTime() - o2.getTime());
-	}
-		
-	
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        if (p1 != null && p2 != null){
+            sb.append("Collision particle").append(p1.getId()).append(" and particle").append(p2.getId()).append(" t=").append(time);
+        } else if (p2 == null) {
+            sb.append("Collision particle").append(p1.getId()).append(" and wall Y t=").append(time);
+        } else {
+            sb.append("Collision particle").append(p2.getId()).append(" and wall X t=").append(time);
+        }
+
+        return sb.toString();
+    }
+
 }

@@ -21,14 +21,14 @@ public class Particle {
 	private Double x_speed = 0.0;
 	private Double y_speed = 0.0;
 
-    private Double eventTime = 0.0;
+    private Integer eventCount = 0;
 
     public Particle(final Integer id){
 		this.id = id;
 	}
 
 
-	public Particle(int id, double radius, double property, double x, double y, double x_speed, double y_speed,double speedModule, double heading){
+	public Particle(int id, double radius, double property, double x, double y, double x_speed, double y_speed, double speedModule, double heading){
 		this.id = id;
 		this.radius = radius;
 		this.property = property;
@@ -164,12 +164,12 @@ public class Particle {
 		return y_speed;
 	}
 
-    public Double getEventTime() {
-        return eventTime;
+    public Integer getEventCount() {
+        return eventCount;
     }
 
-    public void setEventTime(Double eventTime) {
-        this.eventTime = eventTime;
+    public void setEventCount(Integer eventCount) {
+        this.eventCount = eventCount;
     }
 
 	@Override
