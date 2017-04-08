@@ -87,6 +87,12 @@ public class Simulation {
 
     }
 
+    /**
+     * Performs elastic collision between two particles and update velocities.
+     * @param p1 The first particle.
+     * @param p2 The second particle.
+     */
+
     private static void collision(Particle p1, Particle p2) {
         double totalRadius = p1.getRadius() + p2.getRadius();
 
