@@ -1,5 +1,7 @@
 package ar.edu.itba.ss;
 
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -7,7 +9,7 @@ import java.util.PriorityQueue;
 
 public class Simulation {
 	private static final int N = 2;
-	private static final double runningTime = 60; //Seconds
+	private static final double runningTime = 1000; //Seconds
 
 	private static final double L = 0.5;
 
@@ -37,15 +39,27 @@ public class Simulation {
         initialEventFill();
         System.out.println("Done!");
 
-        //events.forEach(System.out::println);
 
         while (events.size() > 0 && currTime < runningTime){
             Event event = events.poll();
-            System.out.println(event);
+            System.out.println("LOG: Event " + event);
             if (!event.isInvalid()){
+                System.out.println("LOG: Event is valid");
+                Double delta = event.getTime() - currTime;
 
-                double delta = event.getTime() - currTime;
-                advanceParticles(delta);
+                Double currAdv = delta % printInterval;
+                if (!currAdv.equals(0d)){
+                    advanceParticles(currAdv);
+                    printAll();
+                }
+
+                while (currAdv < delta && currAdv + printInterval < delta) {
+                    advanceParticles(printInterval);
+                    printAll();
+                    currAdv += printInterval;
+                }
+
+                advanceParticles(delta - currAdv);
 
                 if (event.particleCollision()){
 
@@ -75,9 +89,11 @@ public class Simulation {
                     currTime = event.getTime();
                     foreseeCollisions(p);
                 }
-            } /* else {
+            }  else {
                 System.out.println("Event discarded");
-            }*/
+            }
+
+            System.out.println("LOG: CurrTime " + currTime);
         }
 
 
@@ -92,7 +108,10 @@ public class Simulation {
                 Optional<Double> opt = getCollisionDelta(p, curr);
 
                 if (opt.isPresent()){
-                    events.add(new Event(currTime + opt.get(), p, curr));
+
+                    //TODO: Check this
+                    if (opt.get() > 0)
+                        events.add(new Event(currTime + opt.get(), p, curr));
                 }
             }
         }
@@ -106,13 +125,13 @@ public class Simulation {
         //Check collision with wall in X component
         Optional<Double> opt = getCollisionDelta(p.getX(), p.getXSpeed(), p.getRadius());
         if (opt.isPresent()) {
-            events.add(new Event(opt.get(), null, p));
+            events.add(new Event(currTime + opt.get(), null, p));
         }
 
         //Check collision with wall in Y component
         opt = getCollisionDelta(p.getY(), p.getYSpeed(), p.getRadius());
         if (opt.isPresent()) {
-            events.add(new Event(opt.get(), p, null));
+            events.add(new Event(currTime + opt.get(), p, null));
         }
     }
 
@@ -167,8 +186,8 @@ public class Simulation {
         p1.setXSpeed(p1.getXSpeed() + Jx / p1.getMass());
         p1.setYSpeed(p1.getYSpeed() + Jy / p1.getMass());
 
-        p2.setXSpeed(p1.getXSpeed() + Jx / p2.getMass());
-        p2.setYSpeed(p1.getYSpeed() + Jy / p2.getMass());
+        p2.setXSpeed(p2.getXSpeed() - Jx / p2.getMass());
+        p2.setYSpeed(p2.getYSpeed() - Jy / p2.getMass());
     }
 
     /**
@@ -229,50 +248,32 @@ public class Simulation {
     }
 
 
+    private static void printAll(){
 
-    /////////////////////////////////////////////////
+        StringBuilder sb = new StringBuilder();
 
-	private static void updateCollisions(Event e) {
-		// TODO Auto-generated method stub
+        sb.append('\t').append(N + 5).append('\n');
+        sb.append('\t').append("Comment").append('\n');
 
-	}
+        for (Particle p : borders){
+            sb.append('\t').append(-1).append('\t').append(p.getX()).append('\t').append(p.getY()).append('\t').append(p.getRadius()).append('\n');
+        }
 
-
-
-	private static void getNewVelocities(Event e) {
-		// TODO Auto-generated method stub
-
-	}
-
+        for (Particle p : list){
+            sb.append('\t').append(p.getId()).append('\t').append(p.getX()).append('\t').append(p.getY()).append('\t').append(p.getRadius()).append('\n');
+        }
 
 
-	private static void getInteractions() {
-		double tc;
-		for(int i =0;i<list.size();i++){
-			Particle p = list.get(i);
-			//Checks collisions with wall in X
-			tc = p.collideX();
-			events.add(new Event(tc, p, null));
+        try {
+            FileWriter fw = new FileWriter("out.txt", true);
+            fw.write(sb.toString());
+            fw.close();
+        } catch (IOException e){
+            e.printStackTrace();
+        }
+    }
 
-			//Checks collisions with wall in Y
-			tc = p.collideY();
-			events.add(new Event(tc,null,p));
 
-			//Checks collisions with other particles
-			for(int j=i+1;j<list.size();j++){
-				Particle aux = list.get(j);
-				tc = p.collide(aux);
-				events.add(new Event(tc,p,aux));
-			}
-		}
-	}
-
-	private static void evolveParticles(double time){
-		for(Particle p: list){
-			p.setX(p.getX() + p.getXSpeed()*time);
-			p.setY(p.getY() + p.getYSpeed()*time);
-		}
-	}
 
 	private static List<Particle> generateBorders() {
 		List<Particle> list = new ArrayList<>();

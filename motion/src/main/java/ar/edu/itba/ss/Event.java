@@ -38,18 +38,25 @@ public class Event {
 	}
 
     public boolean isInvalid(){
-        return !((p1 != null && !p1.getEventCount().equals(eventCountP1)) || (p2 !=null && !p2.getEventCount().equals(eventCountP2)));
+
+        if (p1 != null && !p1.getEventCount().equals(eventCountP1))
+            return true;
+
+        if (p2 != null && !p2.getEventCount().equals(eventCountP2))
+            return true;
+
+        return false;
     }
 
     public boolean particleCollision(){
         return p1 != null && p2 != null;
     }
 
-    public double getEventTimeP1() {
+    public Integer getEventCountP1() {
         return eventCountP1;
     }
 
-    public double getEventTimeP2() {
+    public Integer getEventCountP2() {
         return eventCountP2;
     }
 
