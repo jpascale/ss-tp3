@@ -19,6 +19,8 @@ public class Simulation {
 
 	private final static double printInterval = 0.1;
 
+    private static Double currTime = 0d;
+
 	private static ArrayList<Particle> list;
 	private static PriorityQueue<Event> events = new PriorityQueue<>(new EventComparator());
 
@@ -35,8 +37,26 @@ public class Simulation {
 
         events.forEach(System.out::println);
 
-        Particle.CreateFile(list);
+        while (events.size() > 0 && currTime < runningTime){
+            Event event = events.poll();
+            if (!event.isInvalid()){
+                if (event.particleCollision()){
+                    double delta = event.getTime() - currTime;
+                    advanceParticles(delta);
+
+
+
+                    currTime = event.getTime();
+                }
+            }
+        }
 	}
+
+    public static void advanceParticles(double time){
+        for (Particle p : list) {
+            p.advaceDelta(time);
+        }
+    }
 
     private static void initialEventFill(){
 
@@ -45,7 +65,7 @@ public class Simulation {
 
             //Check collision with other particles
             for (int j = i + 1; j < list.size(); j++){
-                Optional<Double> opt = getCollisionTime(p, list.get(j));
+                Optional<Double> opt = getCollisionDelta(p, list.get(j));
 
                 if (opt.isPresent()){
                     events.add(new Event(opt.get(), p, list.get(j)));
@@ -53,18 +73,40 @@ public class Simulation {
             }
 
             //Check collision with wall in X component
-            Optional<Double> opt = getCollisionTime(p.getX(), p.getXSpeed(), p.getRadius());
+            Optional<Double> opt = getCollisionDelta(p.getX(), p.getXSpeed(), p.getRadius());
             if (opt.isPresent()) {
                 events.add(new Event(opt.get(), null, p));
             }
 
             //Check collision with wall in Y component
-            opt = getCollisionTime(p.getY(), p.getYSpeed(), p.getRadius());
+            opt = getCollisionDelta(p.getY(), p.getYSpeed(), p.getRadius());
             if (opt.isPresent()) {
                 events.add(new Event(opt.get(), p, null));
             }
         }
 
+    }
+
+    private static void collision(Particle p1, Particle p2) {
+        double totalRadius = p1.getRadius() + p2.getRadius();
+
+        double deltaX = p2.getX() - p1.getX();
+        double deltaY = p2.getY() - p1.getY();
+
+        double deltaVX = p2.getXSpeed() - p1.getXSpeed();
+        double deltaVY = p2.getYSpeed() - p1.getYSpeed();
+
+        double deltaVDeltaR = deltaVX * deltaX + deltaVY * deltaY;
+
+        double J = (2 * p1.getMass() * p2.getMass() * deltaVDeltaR)/(totalRadius * (p1.getMass() + p2.getMass()));
+        double Jx = J * deltaX / totalRadius;
+        double Jy = J * deltaY / totalRadius;
+
+        p1.setXSpeed(p1.getXSpeed() + Jx / p1.getMass());
+        p1.setYSpeed(p1.getYSpeed() + Jy / p1.getMass());
+
+        p2.setXSpeed(p1.getXSpeed() + Jx / p2.getMass());
+        p2.setYSpeed(p1.getYSpeed() + Jy / p2.getMass());
     }
 
     /**
@@ -75,7 +117,7 @@ public class Simulation {
      * @return Optional containing or not the time.
      */
 
-    private static Optional<Double> getCollisionTime(Particle p1, Particle p2) {
+    private static Optional<Double> getCollisionDelta(Particle p1, Particle p2) {
         double totalRadius = p1.getRadius() + p2.getRadius();
 
         double deltaX = p2.getX() - p1.getX();
@@ -108,7 +150,7 @@ public class Simulation {
      * @param Vx The velocity in that component
      * @return Optional containing or not the time.
      */
-    public static Optional<Double> getCollisionTime(Double x, Double Vx, Double Radius){
+    public static Optional<Double> getCollisionDelta(Double x, Double Vx, Double Radius){
         if (Vx.equals(0d)){
             return Optional.empty();
         }

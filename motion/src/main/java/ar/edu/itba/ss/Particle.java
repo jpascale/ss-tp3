@@ -13,7 +13,7 @@ public class Particle {
 	private Integer id;
 
 	private Double radius = 0.0;
-	private Double property = 0.0;
+	private Double mass = 0.0;
 
 	private Double x_pos = 0.0;
 	private Double y_pos = 0.0;
@@ -28,20 +28,20 @@ public class Particle {
 	}
 
 
-	public Particle(int id, double radius, double property, double x, double y, double x_speed, double y_speed, double speedModule, double heading){
+	public Particle(int id, double radius, double mass, double x, double y, double x_speed, double y_speed, double speedModule, double heading){
 		this.id = id;
 		this.radius = radius;
-		this.property = property;
+		this.mass = mass;
 		this.x_pos = x;
 		this.y_pos = y;
 		this.x_speed = x_speed;
 		this.y_speed = y_speed;
 	}
 
-	public Particle(int id, double radius, double property, double x, double y, double x_speed, double y_speed){
+	public Particle(int id, double radius, double mass, double x, double y, double x_speed, double y_speed){
 		this.id = id;
 		this.radius = radius;
-		this.property = property;
+		this.mass = mass;
 		this.x_pos = x;
 		this.y_pos = y;
 		this.x_speed = x_speed;
@@ -120,6 +120,11 @@ public class Particle {
 			}
 		}
 		return true;
+	}
+
+	public void advaceDelta(double delta) {
+		x_pos = x_pos + x_speed * delta;
+		y_pos = y_pos + y_speed * delta;
 	}
 	
 	public double collideX() {
@@ -203,23 +208,23 @@ public class Particle {
 		this.x_pos = x_pos;
 	}
 
-	public Double getProperty() {
-		return property;
-	}
-
-	public void setProperty(double property) {
-		this.property = property;
+	public Double getMass() {
+		return mass;
 	}
 
 	public Double getRadius() {
 		return radius;
 	}
 
-	public void setRadius(double radius) {
-		this.radius = radius;
-	}
+    public void setXSpeed(Double x_speed) {
+        this.x_speed = x_speed;
+    }
 
-	@Override
+    public void setYSpeed(Double y_speed) {
+        this.y_speed = y_speed;
+    }
+
+    @Override
 	public String toString() {
 		return "Particle " + this.id + " (" + this.x_pos + "," + this.y_pos + ")(" + this.x_speed + "," + this.y_speed + ")";
 	}
@@ -227,6 +232,7 @@ public class Particle {
 	public Integer getId() {
 		return id;
 	}
+
 
 
     //TODO: Remove
@@ -253,6 +259,7 @@ public class Particle {
             e.printStackTrace();
         }
     }
+
 
 }
 

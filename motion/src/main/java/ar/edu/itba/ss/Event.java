@@ -41,6 +41,10 @@ public class Event {
         return !((p1 != null && !p1.getEventCount().equals(eventCountP1)) || (p2 !=null && !p2.getEventCount().equals(eventCountP2)));
     }
 
+    public boolean particleCollision(){
+        return p1 != null && p2 != null;
+    }
+
     public double getEventTimeP1() {
         return eventCountP1;
     }
