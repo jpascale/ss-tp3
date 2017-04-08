@@ -33,24 +33,88 @@ public class Simulation {
 		list = Particle.generateParticles(N, radius, mass, bigRadius, bigMass, L);
 		System.out.println("Done!");
 
+        System.out.print("Generating initial events... ");
         initialEventFill();
+        System.out.println("Done!");
 
-        events.forEach(System.out::println);
+        //events.forEach(System.out::println);
 
         while (events.size() > 0 && currTime < runningTime){
             Event event = events.poll();
+            System.out.println(event);
             if (!event.isInvalid()){
+
+                double delta = event.getTime() - currTime;
+                advanceParticles(delta);
+
                 if (event.particleCollision()){
-                    double delta = event.getTime() - currTime;
-                    advanceParticles(delta);
 
+                    collision(event.getP1(), event.getP2());
 
+                    event.getP1().increaseEventCount();
+                    event.getP2().increaseEventCount();
 
                     currTime = event.getTime();
+
+                    foreseeCollisions(event.getP1());
+                    foreseeCollisions(event.getP2());
+
+                } else {
+
+                    Particle p;
+                    if (event.getP1() != null){
+                        //Vertical collision between p1 and a wall
+                        p = event.getP1();
+                        p.setYSpeed(event.getP1().getYSpeed() * -1);
+                    } else {
+                        //Horizontal collision p2 and a wall
+                        p = event.getP2();
+                        p.setXSpeed(event.getP2().getXSpeed() * -1);
+                    }
+                    p.increaseEventCount();
+                    currTime = event.getTime();
+                    foreseeCollisions(p);
+                }
+            } /* else {
+                System.out.println("Event discarded");
+            }*/
+        }
+
+
+
+	}
+
+    public static void foreseeCollisions(Particle p){
+
+        //Other particles
+        for (Particle curr : list){
+            if (!curr.equals(p)){
+                Optional<Double> opt = getCollisionDelta(p, curr);
+
+                if (opt.isPresent()){
+                    events.add(new Event(currTime + opt.get(), p, curr));
                 }
             }
         }
-	}
+
+        //Borders
+        foreseeBorderCollitions(p);
+
+    }
+
+    private static void foreseeBorderCollitions(Particle p){
+        //Check collision with wall in X component
+        Optional<Double> opt = getCollisionDelta(p.getX(), p.getXSpeed(), p.getRadius());
+        if (opt.isPresent()) {
+            events.add(new Event(opt.get(), null, p));
+        }
+
+        //Check collision with wall in Y component
+        opt = getCollisionDelta(p.getY(), p.getYSpeed(), p.getRadius());
+        if (opt.isPresent()) {
+            events.add(new Event(opt.get(), p, null));
+        }
+    }
 
     public static void advanceParticles(double time){
         for (Particle p : list) {
@@ -72,20 +136,12 @@ public class Simulation {
                 }
             }
 
-            //Check collision with wall in X component
-            Optional<Double> opt = getCollisionDelta(p.getX(), p.getXSpeed(), p.getRadius());
-            if (opt.isPresent()) {
-                events.add(new Event(opt.get(), null, p));
-            }
-
-            //Check collision with wall in Y component
-            opt = getCollisionDelta(p.getY(), p.getYSpeed(), p.getRadius());
-            if (opt.isPresent()) {
-                events.add(new Event(opt.get(), p, null));
-            }
+            //Borders
+            foreseeBorderCollitions(p);
         }
 
     }
+
 
     /**
      * Performs elastic collision between two particles and update velocities.

@@ -261,5 +261,8 @@ public class Particle {
     }
 
 
+    public void increaseEventCount() {
+        eventCount++;
+    }
 }
 
