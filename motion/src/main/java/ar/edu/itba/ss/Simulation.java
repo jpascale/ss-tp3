@@ -8,8 +8,8 @@ import java.util.Optional;
 import java.util.PriorityQueue;
 
 public class Simulation {
-	private static final int N = 2;
-	private static final double runningTime = 1000; //Seconds
+	private static final int N = 10;
+	private static final double runningTime = 500; //Seconds
 
 	private static final double L = 0.5;
 

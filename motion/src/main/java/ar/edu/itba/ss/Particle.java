@@ -73,9 +73,10 @@ public class Particle {
 
         //Create big particle with id 0
 		createParticle(0, bigRadius, bigMass, 0, L, list);
-		
+
 		//Create small particles
 		for (int i = 1; i <= N; i++){
+            System.out.println("Creating particle " + i);
 			createParticle(i, radius, mass, 0.1, L, list);
 		}
 
@@ -113,7 +114,7 @@ public class Particle {
 			return false;
 		}
 		for (Particle p:list){
-			double dist = Math.pow(x - p.getX(), 2) + Math.pow(y - p.getY(), 2);
+			double dist = Math.sqrt(Math.pow(x - p.getX(), 2) + Math.pow(y - p.getY(), 2));
 			double rad = r + p.getRadius();
 			if (Double.compare(dist, rad) <= 0){
 				return false;
