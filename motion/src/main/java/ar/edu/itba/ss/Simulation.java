@@ -23,6 +23,8 @@ public class Simulation {
 
     private static Double currTime = 0d;
 
+    private static Integer cantCollitions = 0;
+
 	private static ArrayList<Particle> list;
 	private static PriorityQueue<Event> events = new PriorityQueue<>(new EventComparator());
 
@@ -97,6 +99,7 @@ public class Simulation {
         }
 
 
+        System.out.println("Collision freq:" + (double)cantCollitions / currTime);
 
 	}
 
@@ -188,6 +191,8 @@ public class Simulation {
 
         p2.setXSpeed(p2.getXSpeed() - Jx / p2.getMass());
         p2.setYSpeed(p2.getYSpeed() - Jy / p2.getMass());
+
+        cantCollitions++;
     }
 
     /**
