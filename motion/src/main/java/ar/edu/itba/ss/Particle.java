@@ -235,35 +235,18 @@ public class Particle {
 	}
 
 
-
-    //TODO: Remove
-    public static void CreateFile(final List<Particle> list){
-        File file;
-        FileOutputStream fop = null;
-        file = new File("out.txt");
-        try {
-            fop = new FileOutputStream(file);
-            if(!file.exists()){
-                file.createNewFile();
-            }
-            int time = 0;
-            String init = "\t" + list.size() + "\n" +"\t" + time +"\n";
-            fop.write(init.getBytes());
-            for(Particle p: list){
-                String aux = "\t" + p.getId() + "\t" + p.getX() + "\t" + p.getY() + "\t" + p.getXSpeed() + "\t" + p.getYSpeed() + "\t" + p.getRadius() + "\n";
-                fop.write(aux.getBytes());
-                fop.flush();
-            }
-            fop.flush();
-            fop.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-
     public void increaseEventCount() {
         eventCount++;
     }
+
+
+	public double getSpeed() {
+		return Math.sqrt(Math.pow(getXSpeed(), 2)+ Math.pow(getYSpeed(), 2));
+	}
+
+
+	public double getPosition() {
+		return Math.sqrt(Math.pow(getX(), 2)+ Math.pow(getY(), 2));
+	}
 }
 

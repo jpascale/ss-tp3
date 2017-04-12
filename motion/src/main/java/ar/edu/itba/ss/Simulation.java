@@ -8,10 +8,13 @@ import java.util.Optional;
 import java.util.PriorityQueue;
 
 public class Simulation {
-	private static final int N = 10;
-	private static final double runningTime = 500; //Seconds
+	private static final int N = 100;
+	private static final double runningTime = 150; //Seconds
+	private static final double ultimoTercio = runningTime - runningTime/3;
 
 	private static final double L = 0.5;
+	
+	private static final double kb = 1.380648813E-23;
 
 	private static final double radius = 0.005;
 	private static final double mass = 0.1;
@@ -24,8 +27,12 @@ public class Simulation {
     private static Double currTime = 0d;
 
     private static Integer cantCollitions = 0;
-
+    private static int colisions = 0;
+    private static int ocurances = 0;
+    private static double lastdraw = -printInterval;
+    
 	private static ArrayList<Particle> list;
+	private static List<Particle> original = new ArrayList<Particle>();
 	private static PriorityQueue<Event> events = new PriorityQueue<>(new EventComparator());
 
 	private static List<Particle> borders = generateBorders();
@@ -92,15 +99,36 @@ public class Simulation {
                     foreseeCollisions(p);
                 }
             }  else {
-                System.out.println("Event discarded");
+               // System.out.println("Event discarded");
             }
 
             System.out.println("LOG: CurrTime " + currTime);
         }
 
+        System.out.println("T = " + t);
 
         System.out.println("Collision freq:" + (double)cantCollitions / currTime);
 
+	}
+	
+	public static double calculateK(List<Particle> particles) {
+		double K = 0.0;
+		for (Particle p : particles) {
+			K += p.getMass() * Math.pow(p.getSpeed(), 2);
+		}
+		return K/particles.size();
+	}
+	
+	public static double calculateTemp(List<Particle> particles){
+		return (2*calculateK(particles))/(3*kb);
+	}
+	
+	public static double calculateMeanDispl(List<Particle> particles){
+		double MD = 0.0;
+		for(Particle p:particles){
+			MD += Math.pow(p.getPosition() - original.get(p.getId()).getPosition(), 2);
+		}
+		return MD/particles.size();
 	}
 
     public static void foreseeCollisions(Particle p){
@@ -253,7 +281,7 @@ public class Simulation {
     }
 
 
-    private static void printAll(){
+    private static void printAll(double time){
 
         StringBuilder sb = new StringBuilder();
 
@@ -261,11 +289,16 @@ public class Simulation {
         sb.append('\t').append("Comment").append('\n');
 
         for (Particle p : borders){
-            sb.append('\t').append(-1).append('\t').append(p.getX()).append('\t').append(p.getY()).append('\t').append(p.getRadius()).append('\n');
+            sb.append('\t').append(-1).append('\t').append(p.getX()).append('\t').append(p.getY()).append('\t').append(p.getRadius()).append('\t').append('0') .append('\n');
         }
 
         for (Particle p : list){
-            sb.append('\t').append(p.getId()).append('\t').append(p.getX()).append('\t').append(p.getY()).append('\t').append(p.getRadius()).append('\n');
+            sb.append('\t').append(p.getId()).append('\t').append(p.getX()).append('\t').append(p.getY()).append('\t').append(p.getRadius()).append('\t');
+            if (p.getId().equals(0)){
+                sb.append('1').append("1\t0\t0").append('\n');
+            } else {
+                sb.append('0').append("0.2\t0\t1")append('\n');
+            }
         }
 
 
@@ -276,6 +309,56 @@ public class Simulation {
         } catch (IOException e){
             e.printStackTrace();
         }
+        
+        
+        int t = (int)((currTime + time)*100);
+        
+        try{
+			FileWriter fw2 = new FileWriter("big.txt",true);
+			double dist = Math.sqrt(Math.pow(list.get(0).getX(),2) + Math.pow(list.get(0).getY(), 2));
+			fw2.write("\t" + t + "\t" + dist + "\n");
+			fw2.close();
+		}catch(IOException e){
+			e.printStackTrace();
+		}
+        if(t > ultimoTercio){
+        	try{
+    			FileWriter fw2 = new FileWriter("vel.txt",true);
+    			for(Particle p: list){
+    				fw2.write("\t" + p.getSpeed() + "\n");
+    			}
+    			fw2.close();
+    		}catch(IOException e){
+    			e.printStackTrace();
+    		}
+        }
+        
+		try{
+			FileWriter fw2 = new FileWriter("colTime.txt",true);
+			fw2.write(colisions + "\n");
+			fw2.close();
+		}catch(IOException e){
+			e.printStackTrace();
+		}
+        
+        
+        
+        try{
+			FileWriter fw2 = new FileWriter("bigtr.txt",true);
+			fw2.write(list.get(0).getX() + "\t" + list.get(0).getY() + "\n");
+			fw2.close();
+		}catch(IOException e){
+			e.printStackTrace();
+		}
+		
+		try{
+			FileWriter fw2 = new FileWriter("col.txt",true);
+			for(int i =0;i<colisions;i++)
+				fw2.write(ocurances + "\n");
+			fw2.close();
+		}catch(IOException e){
+			e.printStackTrace();
+		}
     }
 
 
