@@ -42,34 +42,34 @@ public class Simulation {
 
         System.out.print("Creating particles... ");
 		list = Particle.generateParticles(N, radius, mass, bigRadius, bigMass, L);
+		original.addAll(list);
 		System.out.println("Done!");
-
+		double t = calculateTemp(list);
         System.out.print("Generating initial events... ");
         initialEventFill();
         System.out.println("Done!");
-
-
         while (events.size() > 0 && currTime < runningTime){
             Event event = events.poll();
-            System.out.println("LOG: Event " + event);
+            ocurances ++;
+           // System.out.println("LOG: Event " + event);
             if (!event.isInvalid()){
-                System.out.println("LOG: Event is valid");
+              //  System.out.println("LOG: Event is valid");
                 Double delta = event.getTime() - currTime;
 
                 Double currAdv = delta % printInterval;
                 if (!currAdv.equals(0d)){
                     advanceParticles(currAdv);
-                    printAll();
+                    printAll(currAdv);
                 }
 
                 while (currAdv < delta && currAdv + printInterval < delta) {
                     advanceParticles(printInterval);
-                    printAll();
+                    printAll(printInterval);
                     currAdv += printInterval;
                 }
-
-                advanceParticles(delta - currAdv);
-
+              advanceParticles(delta - currAdv);
+                
+              
                 if (event.particleCollision()){
 
                     collision(event.getP1(), event.getP2());
